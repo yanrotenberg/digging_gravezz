@@ -10,7 +10,7 @@ from telegram.ext import (
 )
 
 # 🔑 Get secrets from environment variables (Render -> Environment tab)
-TOKEN = os.environ.get("8326170102:AAGtgPrgUjTKcvFlFDdN6kdhNrdSvoTWEcw")
+TOKEN = os.environ.get("6788828694:AAGS3tuPQf9lOihCZIwyThCKNjUEKsuKUkU")
 URL = os.environ.get("https://digging_gravezz.onrender.com")
 
 # 🎮 Game settings
