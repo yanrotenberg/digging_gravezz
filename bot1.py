@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 # 🌐 Flask app
 app = Flask(__name__)
 
-# 🔑 Token (correct one)
+# 🔑 Token (your correct one)
 TOKEN = os.environ.get("BOT_TOKEN", "8099152653:AAE9cUupvk4etyIg8rh4Zsx2jaiN8kb8J70")
 print("DEBUG BOT_TOKEN:", repr(TOKEN))
 
@@ -31,19 +31,19 @@ games = {}
 # 🤖 Telegram Application
 application = Application.builder().token(TOKEN).build()
 
-# ✅ Root to confirm server is alive
+# ✅ Root to check if server is alive
 @app.route("/")
 def home():
     return "✅ Bot is running on Render!"
 
-# ✅ Webhook route (ASYNC FIX)
+# ✅ Webhook route (SYNC version with process_update)
 @app.route(f"/{TOKEN}", methods=["POST"])
-async def webhook():
+def webhook():
     data = request.get_json(force=True)
     print("✅ Telegram POST received:", data)
 
     update = Update.de_json(data, application.bot)
-    await application.update_queue.put(update)   # ✅ Await the queue
+    application.create_task(application.process_update(update))  # ✅ Process immediately
 
     return "ok"
 
