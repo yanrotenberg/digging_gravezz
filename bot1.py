@@ -2,6 +2,7 @@ from flask import Flask, request
 import os
 import time
 import logging
+import asyncio
 from telegram import Update
 from telegram.ext import (
     Application,
@@ -17,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 # 🌐 Flask app
 app = Flask(__name__)
 
-# 🔑 Token (your correct one)
+# 🔑 Token (correct one)
 TOKEN = os.environ.get("BOT_TOKEN", "8099152653:AAE9cUupvk4etyIg8rh4Zsx2jaiN8kb8J70")
 print("DEBUG BOT_TOKEN:", repr(TOKEN))
 
@@ -31,19 +32,21 @@ games = {}
 # 🤖 Telegram Application
 application = Application.builder().token(TOKEN).build()
 
-# ✅ Root to check if server is alive
+# ✅ Root to check server
 @app.route("/")
 def home():
     return "✅ Bot is running on Render!"
 
-# ✅ Webhook route (SYNC version with process_update)
+# ✅ Webhook route using run_coroutine_threadsafe
 @app.route(f"/{TOKEN}", methods=["POST"])
 def webhook():
     data = request.get_json(force=True)
     print("✅ Telegram POST received:", data)
 
     update = Update.de_json(data, application.bot)
-    application.create_task(application.process_update(update))  # ✅ Process immediately
+
+    # 🔥 Schedule the update on PTB's asyncio loop
+    asyncio.run_coroutine_threadsafe(application.process_update(update), application.loop)
 
     return "ok"
 
