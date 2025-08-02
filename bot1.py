@@ -11,6 +11,7 @@ from telegram.ext import (
 
 # 🔑 Hardcode your token for local testing
 TOKEN = "7462995808:AAEAGnz5abjDcRax6Sjd0GVauhEkopl-Cq8"
+print("DEBUG BOT_TOKEN:", repr(TOKEN))
 
 # 🎮 Game settings
 GAME_DURATION = 10   # seconds
