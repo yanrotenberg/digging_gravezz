@@ -11,13 +11,13 @@ from telegram.ext import (
     ContextTypes
 )
 
-# ✅ Logging for debugging
+# ✅ Logging
 logging.basicConfig(level=logging.INFO)
 
-# 🌐 Flask app for Render
+# 🌐 Flask app
 app = Flask(__name__)
 
-# 🔑 Token (matches your BotFather token)
+# 🔑 Token (correct one)
 TOKEN = os.environ.get("BOT_TOKEN", "8099152653:AAE9cUupvk4etyIg8rh4Zsx2jaiN8kb8J70")
 print("DEBUG BOT_TOKEN:", repr(TOKEN))
 
@@ -25,23 +25,26 @@ print("DEBUG BOT_TOKEN:", repr(TOKEN))
 GAME_DURATION = 10   # seconds
 CLICK_TARGET = 30    # digs to win
 
-# 🧠 Store active games: {user_id: {"start": time, "clicks": int}}
+# 🧠 Active games
 games = {}
 
 # 🤖 Telegram Application
 application = Application.builder().token(TOKEN).build()
 
-# ✅ Root route to verify server is alive
+# ✅ Root to confirm server is alive
 @app.route("/")
 def home():
     return "✅ Bot is running on Render!"
 
-# ✅ Webhook route (this fixes the 404!)
+# ✅ Webhook route (ASYNC FIX)
 @app.route(f"/{TOKEN}", methods=["POST"])
-def webhook():
-    print("✅ Telegram POST received:", request.get_json(force=True))
-    update = Update.de_json(request.get_json(force=True), application.bot)
-    application.update_queue.put(update)
+async def webhook():
+    data = request.get_json(force=True)
+    print("✅ Telegram POST received:", data)
+
+    update = Update.de_json(data, application.bot)
+    await application.update_queue.put(update)   # ✅ Await the queue
+
     return "ok"
 
 # /start command
@@ -90,7 +93,7 @@ application.add_handler(CommandHandler("start", start))
 application.add_handler(CommandHandler("dig", dig))
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, count_digs))
 
-# 🚀 Run webhook for Render
+# 🚀 Run webhook
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     URL = "https://digging-gravezz.onrender.com"
