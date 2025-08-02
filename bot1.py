@@ -73,7 +73,7 @@ application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, count_di
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    URL = "https://digging-gravezz.onrender.com"  # your Render URL
+    URL = "https://digging-gravezz.onrender.com"
 
     print("✅ Bot is starting on Render webhook...")
 
@@ -84,6 +84,17 @@ if __name__ == "__main__":
         webhook_url=f"{URL}/{TOKEN}"
     )
 
-    @app.route("/")
-    def home():
-        return "✅ Bot is running on Render!"
+
+from flask import request
+
+@app.route("/")
+def home():
+    return "✅ Bot is running on Render!"
+
+@app.route(f"/{TOKEN}", methods=["POST"])
+def webhook():
+    from telegram import Update
+    update = Update.de_json(request.get_json(force=True), application.bot)
+    application.update_queue.put(update)
+    return "ok"
+
