@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
 
 # 🔑 Token (matches your BotFather token)
-TOKEN = os.environ.get("BOT_TOKEN", "7462995808:AAEAGnz5abjDcRax6Sjd0GVauhEkopl-Cq8")
+TOKEN = os.environ.get("BOT_TOKEN", "8099152653:AAE9cUupvk4etyIg8rh4Zsx2jaiN8kb8J70")
 print("DEBUG BOT_TOKEN:", repr(TOKEN))
 
 # 🎮 Game settings
