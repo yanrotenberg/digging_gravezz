@@ -72,6 +72,18 @@ application.add_handler(CommandHandler("dig", dig))
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, count_digs))
 
 if __name__ == "__main__":
-    print("✅ Bot is starting... If you see no errors, it is running.")
-    application.run_polling()
-    print("✅ Bot is running and listening for commands!")
+    port = int(os.environ.get("PORT", 5000))
+    URL = "https://digging-gravezz.onrender.com"  # your Render URL
+
+    print("✅ Bot is starting on Render webhook...")
+
+    application.run_webhook(
+        listen="0.0.0.0",
+        port=port,
+        url_path=TOKEN,
+        webhook_url=f"{URL}/{TOKEN}"
+    )
+
+    @app.route("/")
+    def home():
+        return "✅ Bot is running on Render!"
