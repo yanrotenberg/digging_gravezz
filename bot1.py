@@ -1,9 +1,7 @@
-from flask import Flask
-
-app = Flask(__name__)
-
+from flask import Flask, request
 import os
 import time
+import logging
 from telegram import Update
 from telegram.ext import (
     Application,
@@ -13,8 +11,14 @@ from telegram.ext import (
     ContextTypes
 )
 
-# 🔑 Hardcode your token for local testing
-TOKEN = "8099152653:AAE9cUupvk4etyIg8rh4Zsx2jaiN8kb8J70"
+# 🔧 Logging
+logging.basicConfig(level=logging.INFO)
+
+# 🌐 Flask app for Render
+app = Flask(__name__)
+
+# 🔑 Token
+TOKEN = os.environ.get("BOT_TOKEN", "7462995808:AAEAGnz5abjDcRax6Sjd0GVauhEkopl-Cq8")
 print("DEBUG BOT_TOKEN:", repr(TOKEN))
 
 # 🎮 Game settings
@@ -24,15 +28,30 @@ CLICK_TARGET = 30    # digs to win
 # 🧠 Store active games: {user_id: {"start": time, "clicks": int}}
 games = {}
 
+# 🤖 Telegram Application
 application = Application.builder().token(TOKEN).build()
 
-# /start
+# ✅ Root route to check if server is alive
+@app.route("/")
+def home():
+    return "✅ Bot is running on Render!"
+
+# ✅ Webhook route to receive Telegram updates
+@app.route(f"/{TOKEN}", methods=["POST"])
+def webhook():
+    print("✅ Telegram POST received:", request.get_json(force=True))
+    update = Update.de_json(request.get_json(force=True), application.bot)
+    application.update_queue.put(update)
+    return "ok"
+
+# /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    print("✅ Received /start")
     await update.message.reply_text(
         "Welcome to the Grave Digger mini-game!\nUse /dig to start digging."
     )
 
-# /dig starts the round
+# /dig command
 async def dig(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     games[user_id] = {"start": time.time(), "clicks": 0}
@@ -66,11 +85,12 @@ async def count_digs(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if text == "dig":
         games[user_id]["clicks"] += 1
 
-# Handlers
+# 🛠 Handlers
 application.add_handler(CommandHandler("start", start))
 application.add_handler(CommandHandler("dig", dig))
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, count_digs))
 
+# 🚀 Run webhook on Render
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     URL = "https://digging-gravezz.onrender.com"
@@ -83,18 +103,3 @@ if __name__ == "__main__":
         url_path=TOKEN,
         webhook_url=f"{URL}/{TOKEN}"
     )
-
-
-from flask import request
-
-@app.route("/")
-def home():
-    return "✅ Bot is running on Render!"
-
-@app.route(f"/{TOKEN}", methods=["POST"])
-def webhook():
-    from telegram import Update
-    update = Update.de_json(request.get_json(force=True), application.bot)
-    application.update_queue.put(update)
-    return "ok"
-
