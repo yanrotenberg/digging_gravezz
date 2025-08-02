@@ -11,13 +11,13 @@ from telegram.ext import (
     ContextTypes
 )
 
-# 🔧 Logging
+# ✅ Logging for debugging
 logging.basicConfig(level=logging.INFO)
 
 # 🌐 Flask app for Render
 app = Flask(__name__)
 
-# 🔑 Token
+# 🔑 Token (matches your BotFather token)
 TOKEN = os.environ.get("BOT_TOKEN", "7462995808:AAEAGnz5abjDcRax6Sjd0GVauhEkopl-Cq8")
 print("DEBUG BOT_TOKEN:", repr(TOKEN))
 
@@ -31,12 +31,12 @@ games = {}
 # 🤖 Telegram Application
 application = Application.builder().token(TOKEN).build()
 
-# ✅ Root route to check if server is alive
+# ✅ Root route to verify server is alive
 @app.route("/")
 def home():
     return "✅ Bot is running on Render!"
 
-# ✅ Webhook route to receive Telegram updates
+# ✅ Webhook route (this fixes the 404!)
 @app.route(f"/{TOKEN}", methods=["POST"])
 def webhook():
     print("✅ Telegram POST received:", request.get_json(force=True))
@@ -90,7 +90,7 @@ application.add_handler(CommandHandler("start", start))
 application.add_handler(CommandHandler("dig", dig))
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, count_digs))
 
-# 🚀 Run webhook on Render
+# 🚀 Run webhook for Render
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     URL = "https://digging-gravezz.onrender.com"
