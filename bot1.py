@@ -26,10 +26,8 @@ asyncio.set_event_loop(loop)
 async def start_bot():
     await application.initialize()
     await application.start()
-    await application.updater.start_polling()  # ✅ Ensure dispatcher starts
     print("✅ Application started and handlers are live.")
 
-# 🔥 Block until bot is fully ready
 loop.run_until_complete(start_bot())
 
 # ✅ Root route
