@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 # 🌐 Flask app
 app = Flask(__name__)
 
-# 🔑 Token (your correct one)
+# 🔑 Token
 TOKEN = os.environ.get("BOT_TOKEN", "8099152653:AAE9cUupvk4etyIg8rh4Zsx2jaiN8kb8J70")
 print("DEBUG BOT_TOKEN:", repr(TOKEN))
 
@@ -23,7 +23,7 @@ application = Application.builder().token(TOKEN).build()
 def home():
     return "✅ Bot is running on Render!"
 
-# ✅ Webhook route (sync-safe)
+# ✅ Webhook route with run_coroutine_threadsafe
 @app.route(f"/{TOKEN}", methods=["POST"])
 def webhook():
     data = request.get_json(force=True)
@@ -31,17 +31,17 @@ def webhook():
 
     update = Update.de_json(data, application.bot)
 
-    # ✅ Process safely
-    asyncio.get_event_loop().create_task(application.process_update(update))
+    # 🔥 Push the update into PTB's asyncio loop manually
+    asyncio.run_coroutine_threadsafe(application.process_update(update), application.loop)
 
     return "ok"
 
 # /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print("✅ /start triggered")
-    await update.message.reply_text("Hello! The bot is alive.")
+    await update.message.reply_text("Hello! The bot is alive and replying now.")
 
-# 🛠 Handlers
+# 🛠 Handler
 application.add_handler(CommandHandler("start", start))
 
 # 🚀 Run webhook
