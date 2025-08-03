@@ -18,7 +18,7 @@ print("DEBUG BOT_TOKEN:", repr(TOKEN))
 # 🤖 Telegram Application
 application = Application.builder().token(TOKEN).build()
 
-# ✅ Create a manual asyncio loop and start PTB inside it
+# ✅ Create manual asyncio loop
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
 
@@ -27,14 +27,15 @@ async def start_bot():
     await application.start()
     print("✅ Application started and handlers are live.")
 
-loop.create_task(start_bot())
+# 🔥 Run the startup coroutine BEFORE Flask starts
+loop.run_until_complete(start_bot())
 
 # ✅ Root route
 @app.route("/")
 def home():
     return "✅ Bot is running on Render!"
 
-# ✅ Webhook route using manual loop
+# ✅ Webhook route
 @app.route(f"/{TOKEN}", methods=["POST"])
 def webhook():
     data = request.get_json(force=True)
@@ -48,12 +49,12 @@ def webhook():
 # /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print("✅ /start triggered")
-    await update.message.reply_text("Hello! The bot is alive and now responding correctly.")
+    await update.message.reply_text("Hello! The bot is alive and NOW replying correctly.")
 
 # 🛠 Handlers
 application.add_handler(CommandHandler("start", start))
 
-# 🚀 Run Flask server (we don’t use PTB’s run_webhook)
+# 🚀 Run Flask server
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     print("✅ Bot is starting on Render webhook...")
