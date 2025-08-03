@@ -5,8 +5,9 @@ import asyncio
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
-# ✅ Logging
+# ✅ Logging (debug mode)
 logging.basicConfig(level=logging.INFO)
+logging.getLogger("telegram.ext").setLevel(logging.DEBUG)
 
 # 🌐 Flask app
 app = Flask(__name__)
@@ -25,9 +26,10 @@ asyncio.set_event_loop(loop)
 async def start_bot():
     await application.initialize()
     await application.start()
+    await application.updater.start_polling()  # ✅ Ensure dispatcher starts
     print("✅ Application started and handlers are live.")
 
-# 🔥 Run the startup coroutine BEFORE Flask starts
+# 🔥 Block until bot is fully ready
 loop.run_until_complete(start_bot())
 
 # ✅ Root route
@@ -49,7 +51,7 @@ def webhook():
 # /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print("✅ /start triggered")
-    await update.message.reply_text("Hello! The bot is alive and NOW replying correctly.")
+    await update.message.reply_text("Hello! The bot is alive and replying now 🎉")
 
 # 🛠 Handlers
 application.add_handler(CommandHandler("start", start))
