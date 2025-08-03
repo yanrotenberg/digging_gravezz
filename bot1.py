@@ -26,16 +26,16 @@ def webhook():
 
     if "message" in data:
         chat_id = data["message"]["chat"]["id"]
-        text = data["message"].get("text", "")
+        text = data["message"].get("text", "").strip().lower()
 
-        if text == "/start":
+        if text.startswith("/start"):
             requests.post(f"{BASE_URL}/sendMessage", json={
                 "chat_id": chat_id,
-                "text": "✅ Hello! This is the simplest webhook bot possible."
+                "text": "✅ Hello! This is the simplest webhook bot possible and it sees your /start now!"
             })
 
     return "ok"
-    
+
 # 🚀 Run Flask server
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
